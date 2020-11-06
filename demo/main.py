@@ -11,14 +11,14 @@ class ReleaseToggles(TogglesList):
     feature2: bool
 
 
-tl = ReleaseToggles('toggles.yaml')
+toggles = ReleaseToggles('toggles.yaml')
 
 
 def main():
-    if tl.feature1:
-        print("hoi")
+    if toggles.feature1:
+        print("Feature One Activated")
     else:
-        print("doei")
+        print("Feature One Deactivated")
 
 
 main()
