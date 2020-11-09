@@ -1,5 +1,6 @@
 import inspect
-from dataclasses import dataclass, asdict
+import os
+from dataclasses import dataclass
 from datetime import date
 
 import yaml
@@ -19,21 +20,24 @@ class Toggle:
     max_lifetime: int = 14
 
     def __bool__(self):
-        if self.creation_date and (date.today() - self.creation_date).days > 14:
+        if self.creation_date and (date.today() - self.creation_date).days > self.max_lifetime:
             logger.warning(
                 f"Feature toggle {self.name} has been in the code for over {self.max_lifetime} days:"
                 f" ({(date.today() - self.creation_date).days} days)."
             )
         return self.value
 
-    def to_dict(self):
-        return asdict(self)
-
 
 class TogglesList:
-    def __init__(self, file_name):
-        with open(file_name, 'r') as f:
-            self._toggle_config = yaml.load(f, Loader=yaml.SafeLoader)
+    def __init__(self, document):
+        if os.path.isfile(document):
+            with open(document, 'r') as f:
+                self._toggle_config = yaml.load(f, Loader=yaml.SafeLoader)
+        else:
+            self._toggle_config = yaml.load(document, Loader=yaml.SafeLoader)
+
+        if not hasattr(self, '__annotations__'):
+            raise Exception("No toggles are declared")
 
         not_declared = set(self._toggle_config) - set(self.__annotations__)
         if not_declared:
