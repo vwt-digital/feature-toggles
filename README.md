@@ -11,7 +11,7 @@ This repo provides functionality for feature toggles in python code.
 
 ## How to use
 
-### Configuration the toggles
+### Configure the toggles
 The toggles are configured in yaml.
 ```yaml
 feature1:
