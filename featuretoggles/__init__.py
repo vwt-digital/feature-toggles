@@ -35,11 +35,16 @@ class TogglesList:
         with open(file_name, 'r') as f:
             self._toggle_config = yaml.load(f, Loader=yaml.SafeLoader)
 
+        not_declared = set(self._toggle_config) - set(self.__annotations__)
+        if not_declared:
+            raise Exception(f"The following toggles are not declared: {not_declared}")
+
+        not_configured = set(self.__annotations__) - set(self._toggle_config)
+        if not_configured:
+            raise Exception(f"The following toggles are not configured: {not_configured}")
+
         for toggle in self._toggle_config:
-            if toggle not in self.__annotations__:
-                raise Exception(f"{toggle} is not defined")
-            else:
-                self.__setattr__(toggle, Toggle(**self._toggle_config.get(toggle)))
+            self.__setattr__(toggle, Toggle(**self._toggle_config.get(toggle)))
 
     def __getattribute__(self, attr):
         curframe = inspect.currentframe()

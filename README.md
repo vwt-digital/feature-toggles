@@ -11,7 +11,7 @@ This repo provides functionality for feature toggles in python code.
 
 ## How to use
 
-### Configuration
+### Configuration the toggles
 The toggles are configured in yaml.
 ```yaml
 feature1:
@@ -34,7 +34,7 @@ Optional fields:
 A warning will be logged when this lifetime is exceeded. The default is 14 days.
 
 
-### Use
+### Declare the toggles
 To use the configured toggles they need to be declared in the code like this:
 
 ```python
@@ -57,4 +57,5 @@ else:
     print("Feature One Deactivated")
 ```
 
-See [demo](demo/demo.py) for a working example
+## Demo
+See [demo](demo/main.py) for a working example
