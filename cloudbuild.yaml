@@ -61,9 +61,9 @@ steps:
     args:
       - -c
       - |
-        source pypi.txt
         if [[ -n "$TAG_NAME" ]]
         then
             source "$$VENV"/bin/activate
+            source pypi.txt
             twine upload -r "$${url}" dist/* -u "$${user}" -p "$${password}"
         fi
