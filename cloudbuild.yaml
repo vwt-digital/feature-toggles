@@ -46,20 +46,24 @@ steps:
         source "$$VENV"/bin/activate
         twine check dist/*
 
-  # Publish package when tagged
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        echo "user=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-username)" >> pypi.txt
+        echo "password=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-password)" >> pypi.txt
+        echo "repo=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-repo)" >> pypi.txt
+
+# Publish package when tagged
   - name: python:3.7.5-slim
     entrypoint: bash
     args:
       - -c
       - |
+        source pypi.txt
         if [[ -n "$TAG_NAME" ]]
         then
-
-            USERNAME=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-username)
-            PASSWORD=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-password)
-            REPO=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-repo)
-
             source "$$VENV"/bin/activate
-            twine upload -r "$$REPO" dist/* -u "$$USERNAME" -p "$$PASSWORD"
-
+            twine upload -r "$${url}" dist/* -u "$${user}" -p "$${password}"
         fi
