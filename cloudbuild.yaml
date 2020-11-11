@@ -6,7 +6,7 @@ options:
     - 'VENV=/workspace/venv'
 steps:
   # Create virtualenv
-  - name: gcr.io/cloud-builders/gcloud
+  - name: python:3.7.5-slim
     entrypoint: bash
     args:
       - -c
@@ -17,17 +17,18 @@ steps:
         pip install twine
 
   # Run unittests
-  - name: gcr.io/cloud-builders/gcloud
+  - name: python:3.7.5-slim
     entrypoint: bash
     args:
       - -c
       - |
         source "$$VENV"/bin/activate
         export TAG_NAME="$TAG_NAME"
-        python setup.py test
+        pip install -r test-requirements.txt
+        python -m pytest
 
   # Build package
-  - name: gcr.io/cloud-builders/gcloud
+  - name: python:3.7.5-slim
     entrypoint: bash
     args:
       - -c
@@ -37,7 +38,7 @@ steps:
         python setup.py sdist bdist_wheel
 
   # Test build output
-  - name: gcr.io/cloud-builders/gcloud
+  - name: python:3.7.5-slim
     entrypoint: bash
     args:
       - -c
@@ -46,7 +47,7 @@ steps:
         twine check dist/*
 
   # Publish package when tagged
-  - name: gcr.io/cloud-builders/gcloud
+  - name: python:3.7.5-slim
     entrypoint: bash
     args:
       - -c
