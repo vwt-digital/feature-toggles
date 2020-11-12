@@ -62,9 +62,6 @@ steps:
       - -c
       - |
         source pypi.txt
-        echo "user: " $user
-        echo "PW: " $password
-        echo "repo: "$repo
         if [[ -n "$TAG_NAME" ]]
         then
             source "$$VENV"/bin/activate
