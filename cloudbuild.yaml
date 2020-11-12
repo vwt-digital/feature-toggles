@@ -1,0 +1,69 @@
+---
+timeout: 1800s
+options:
+  substitution_option: 'ALLOW_LOOSE'
+  env:
+    - 'VENV=/workspace/venv'
+steps:
+  # Create virtualenv
+  - name: python:3.7.5-slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        pip install virtualenv==16.7.9
+        virtualenv -p python3 "$$VENV"
+        source "$$VENV"/bin/activate
+        pip install twine
+
+  # Run unittests
+  - name: python:3.7.5-slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        source "$$VENV"/bin/activate
+        export TAG_NAME="$TAG_NAME"
+        pip install -r test-requirements.txt
+        python -m pytest
+
+  # Build package
+  - name: python:3.7.5-slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        source "$$VENV"/bin/activate
+        export TAG_NAME="$TAG_NAME"
+        python setup.py sdist bdist_wheel
+
+  # Test build output
+  - name: python:3.7.5-slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        source "$$VENV"/bin/activate
+        twine check dist/*
+
+  - name: gcr.io/cloud-builders/gcloud
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        echo "user=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-username)" >> pypi.txt
+        echo "password=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-password)" >> pypi.txt
+        echo "repo=$(gcloud secrets versions access latest --secret="$PROJECT_ID"-repo)" >> pypi.txt
+
+# Publish package when tagged
+  - name: python:3.7.5-slim
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        source pypi.txt
+        if [[ -n "$TAG_NAME" ]]
+        then
+            source "$$VENV"/bin/activate
+            twine upload -r "$${repo}" dist/* -u "$${user}" -p "$${password}"
+        fi

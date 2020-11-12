@@ -1,0 +1,15 @@
+---
+feature1:
+    value: true
+    name: New Thing Toggler
+    description: This toggles the new thing on
+    jira: DAN-123
+    creation_date: 2020-10-12
+    max_lifetime: 3
+
+feature2:
+    value: false
+    name: Other Thing Toggler
+    description: This toggles the something else
+    jira: DAN-123
+    creation_date: 2020-11-02
